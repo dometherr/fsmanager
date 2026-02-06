@@ -1,0 +1,58 @@
+cabal-version:      3.14
+
+name:               fsmanager
+version:            0.1.0.0
+-- synopsis:
+-- description:
+license:            NONE
+author:             Guilherme Herter
+maintainer:         Unknown
+-- copyright:
+build-type:         Simple
+
+extra-doc-files:    CHANGELOG.md
+
+-- extra-source-files:
+
+common default-options
+    ghc-options:
+        -Wall
+    default-language:
+        GHC2024
+    default-extensions:
+        BlockArguments,
+        DataKinds,
+        GADTs,
+        KindSignatures,
+        LambdaCase,
+        OverloadedStrings,
+        RecordWildCards,
+        TypeFamilies
+
+library
+    import:
+        default-options
+    exposed-modules:
+        Greeting
+    other-modules:
+        Paths_fsmanager
+    -- other-extensions:
+    build-depends:
+        base ^>=4.21.0.0,
+        text
+    hs-source-dirs:
+        src
+
+executable fsmanager
+    import:
+        default-options
+    main-is:
+        Main.hs
+    -- other-modules:
+    -- other-extensions:
+    build-depends:
+        base ^>=4.21.0.0,
+        fsmanager,
+        text
+    hs-source-dirs:
+        exe
