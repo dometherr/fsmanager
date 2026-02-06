@@ -1,0 +1,10 @@
+# dotfolders
+**/.direnv
+**/.vscode
+
+# dotfiles
+**/.DS_Store
+**/.env
+
+# folders
+**/dist-newstyle
