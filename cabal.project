@@ -1,0 +1,10 @@
+packages:
+    app-root/*.cabal
+
+optimization: 1
+
+jobs: $ncpus
+
+with-compiler: ghc
+
+write-ghc-environment-files: never
