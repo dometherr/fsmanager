@@ -25,6 +25,7 @@ common default-options
         GADTs,
         KindSignatures,
         LambdaCase,
+        OverloadedRecordDot,
         OverloadedStrings,
         RecordWildCards,
         TypeFamilies
@@ -33,7 +34,8 @@ library
     import:
         default-options
     exposed-modules:
-        Greeting
+        FSM.Core.Domain.Command,
+        FSM.Core.Parser.CommandParser,
     other-modules:
         Paths_fsmanager
     -- other-extensions:
