@@ -476,6 +476,7 @@ language_extensions:
   - GADTs
   - KindSignatures
   - LambdaCase
+  - OverloadedRecordDot
   - OverloadedStrings
   - RecordWildCards
   - TypeFamilies    

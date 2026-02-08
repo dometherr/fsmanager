@@ -25,6 +25,7 @@ common default-options
         GADTs,
         KindSignatures,
         LambdaCase,
+        OverloadedRecordDot,
         OverloadedStrings,
         RecordWildCards,
         TypeFamilies
