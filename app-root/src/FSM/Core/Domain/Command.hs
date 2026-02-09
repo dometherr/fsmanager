@@ -7,6 +7,7 @@ data Command where
     Echo :: Text -> Maybe Filename -> Command
     -- ^ Echo a message or append to a file
     Exit :: Command
+    -- ^ Terminates the program
     deriving (Eq, Show)
 
 data CommandError
