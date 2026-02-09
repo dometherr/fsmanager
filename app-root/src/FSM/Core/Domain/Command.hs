@@ -1,9 +1,7 @@
 module FSM.Core.Domain.Command (Command (..), CommandError (..)) where
 
-import           Data.Text (Text)
-
-type Filename = Text
-type Argument = Text
+import           Data.Text             (Text)
+import           FSM.Core.Domain.Types (Argument, Filename)
 
 data Command where
     Echo :: Text -> Maybe Filename -> Command
