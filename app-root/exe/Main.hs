@@ -1,7 +1,31 @@
 module Main (main) where
 
-import qualified Data.Text.IO as TIO
+import           Control.Monad                 (void)
+import           Control.Monad.IO.Class        (MonadIO (liftIO))
+import qualified Data.Text                     as T
+import qualified Data.Text.IO                  as TIO
+import           FSM.Core.App                  (AppT, runAppT)
+import           FSM.Core.Domain.Command       (Command (Exit))
+import           FSM.Core.Domain.FileSystem    (FileSystem (path),
+                                                newFileSystem)
+import           FSM.Core.Effect.MonadFS       (MonadFS (getFS))
+import           FSM.Core.Parser.CommandParser (parseCommand)
+import           GHC.IO.Handle                 (hFlush)
+import           System.IO                     (stdout)
 
 main :: IO ()
 main = do
-  TIO.putStrLn "Hello, Haskell"
+    TIO.putStrLn "Welcome to the FileSystem Manager. Use help for usage details, or exit to quit the program!"
+    void $ runAppT repl $ newFileSystem "/"
+
+repl :: MonadIO m => AppT m ()
+repl = do
+    getFS >>= \fs -> liftIO $ putStrUnbuffered ("$" <> fs.path <> "> ")
+    liftIO (parseCommand <$> TIO.getLine) >>= \case
+        Right Exit    -> liftIO (TIO.putStrLn "Bye!")
+        Right command -> liftIO (TIO.putStrLn $ "command parsed: " <> T.show command) >> repl
+        Left err      -> liftIO (TIO.putStrLn $ T.show err) >> repl
+
+putStrUnbuffered :: T.Text -> IO ()
+putStrUnbuffered txt = TIO.putStr txt
+                    >> hFlush stdout

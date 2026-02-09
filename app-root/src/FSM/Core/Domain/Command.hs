@@ -6,7 +6,9 @@ import           FSM.Core.Domain.Types (Argument, Filename)
 data Command where
     Echo :: Text -> Maybe Filename -> Command
     -- ^ Echo a message or append to a file
-    deriving (Show)
+    Exit :: Command
+    -- ^ Terminates the program
+    deriving (Eq, Show)
 
 data CommandError
     = MissingArgumentError [Argument]

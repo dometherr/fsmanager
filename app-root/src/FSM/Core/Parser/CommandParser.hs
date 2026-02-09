@@ -10,6 +10,7 @@ parseCommand :: Text -> Parser
 parseCommand rawCmd =
     case T.words (T.strip rawCmd) of
         []             -> Left  NoCommandError
+        ["exit"]       -> Right Exit
         ("echo":parts) -> parseEcho parts
         (command:_)    -> Left $ CommandNotFoundError
                                $ "command: " <> command <> " not implemented"
