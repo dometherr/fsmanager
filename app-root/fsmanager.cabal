@@ -35,13 +35,16 @@ library
         default-options
     exposed-modules:
         FSM.Core.Domain.Command,
+        FSM.Core.Domain.FileSystem,
+        FSM.Core.Domain.Types,
         FSM.Core.Parser.CommandParser,
     other-modules:
         Paths_fsmanager
     -- other-extensions:
     build-depends:
         base ^>=4.21.0.0,
-        text
+        text,
+        containers
     hs-source-dirs:
         src
 
