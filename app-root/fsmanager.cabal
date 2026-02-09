@@ -34,9 +34,11 @@ library
     import:
         default-options
     exposed-modules:
+        FSM.Core.App,
         FSM.Core.Domain.Command,
         FSM.Core.Domain.FileSystem,
         FSM.Core.Domain.Types,
+        FSM.Core.Effect.MonadFS,
         FSM.Core.Parser.CommandParser,
     other-modules:
         Paths_fsmanager
@@ -44,7 +46,8 @@ library
     build-depends:
         base ^>=4.21.0.0,
         text,
-        containers
+        containers,
+        mtl
     hs-source-dirs:
         src
 
