@@ -37,7 +37,7 @@ instance Eq Entry where
 
 newFileSystem :: Path -> FileSystem
 newFileSystem basePath = 
-    FileSystem { reg  = M.fromList [([basePath], [])]
+    FileSystem { reg  = M.fromList [([basePath], mempty)]
                , path = basePath
                }
 
