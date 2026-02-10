@@ -1,13 +1,13 @@
 module Main (main) where
 
+import           Control.Lens                            ((^.))
 import           Control.Monad                           (void)
 import           Control.Monad.IO.Class                  (MonadIO (liftIO))
 import qualified Data.Text                               as T
 import qualified Data.Text.IO                            as TIO
 import           FSM.Core.App                            (AppT, runAppT)
 import           FSM.Core.Domain.Command                 (Command (Exit))
-import           FSM.Core.Domain.FileSystem              (FileSystem (path),
-                                                          newFileSystem)
+import           FSM.Core.Domain.FileSystem              (cpath, newFileSystem)
 import           FSM.Core.Effect.MonadFS                 (MonadFS (getFS))
 import           FSM.Core.Interpreter.CommandInterpreter (interpret)
 import           FSM.Core.Parser.CommandParser           (parseCommand)
@@ -21,7 +21,7 @@ main = do
 
 repl :: MonadIO m => AppT m ()
 repl = do
-    getFS >>= \fs -> liftIO $ putStrUnbuffered ("$" <> fs.path <> "> ")
+    getFS >>= \fs -> liftIO $ putStrUnbuffered ("$" <> fs ^. cpath <> "> ")
     liftIO (parseCommand <$> TIO.getLine) >>= \case
         Right Exit    -> liftIO (TIO.putStrLn "Bye!")
         Right command -> interpret command                  >> repl

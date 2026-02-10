@@ -28,6 +28,7 @@ common default-options
         OverloadedRecordDot,
         OverloadedStrings,
         RecordWildCards,
+        TemplateHaskell,
         TypeFamilies
 
 library
@@ -48,7 +49,8 @@ library
         base ^>=4.21.0.0,
         text,
         containers,
-        mtl
+        mtl,
+        lens
     hs-source-dirs:
         src
 
@@ -62,6 +64,7 @@ executable fsmanager
     build-depends:
         base ^>=4.21.0.0,
         fsmanager,
-        text
+        text,
+        lens
     hs-source-dirs:
         exe
