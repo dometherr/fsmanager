@@ -1,18 +1,15 @@
 module FSM.Core.Domain.FileSystem
-    ( Entries
-    , Entry (..)
+    ( Entry (..)
     , FileSystem (..)
+    , FileSystemError (..)
     , Registry
+    , entryId
     , newFileSystem
-    , pathEntries
     ) where
 
 import qualified Data.Map              as M
-import           Data.Maybe            (fromMaybe)
-import           FSM.Core.Domain.Types (Content, Filename, Path)
-
-type Registry = M.Map [Path] Entries
-type Entries  = [Entry]
+import           Data.Text             (Text)
+import           FSM.Core.Domain.Types (Content, Filename, Path, Registry)
 
 data Entry
     = File      Filename (Maybe Content)
@@ -23,16 +20,27 @@ data Entry
 
 data FileSystem
     = FileSystem
-          { reg  :: Registry -- ^ The file system registry
-          , path :: Path     -- ^ The current path of the registry
+          { reg  :: Registry Entry -- ^ The file system registry
+          , path :: Path           -- ^ The current path of the registry
           }
     deriving (Show)
 
+data FileSystemError 
+    = OperationNotPermittedError Text
+    -- ^ The operation is not permitted due to business constraints
+    | EntryNotFoundError         Text
+    -- ^ The required entry was not found in the File System
+    deriving (Show)
+
+instance Eq Entry where
+    entry == entry' = entryId entry == entryId entry'
+
 newFileSystem :: Path -> FileSystem
 newFileSystem basePath = 
-    FileSystem { reg  = M.fromList [([basePath], mempty)]
+    FileSystem { reg  = M.fromList [([basePath], [])]
                , path = basePath
                }
 
-pathEntries :: [Path] -> Registry -> Entries
-pathEntries paths = fromMaybe [] . M.lookup paths
+entryId :: Entry -> Text
+entryId (File name _)    = name
+entryId (Directory path) = path
