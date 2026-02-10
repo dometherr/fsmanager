@@ -39,7 +39,8 @@ library
         FSM.Core.Domain.FileSystem,
         FSM.Core.Domain.Types,
         FSM.Core.Effect.MonadFS,
-        FSM.Core.Parser.CommandParser,
+        FSM.Core.Interpreter.CommandInterpreter,
+        FSM.Core.Parser.CommandParser
     other-modules:
         Paths_fsmanager
     -- other-extensions:
