@@ -39,6 +39,7 @@ library
         FSM.Core.Domain.Command,
         FSM.Core.Domain.FileSystem,
         FSM.Core.Domain.Types,
+        FSM.Core.Effect.MonadConsole,
         FSM.Core.Effect.MonadFS,
         FSM.Core.Interpreter.CommandInterpreter,
         FSM.Core.Parser.CommandParser
