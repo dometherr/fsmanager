@@ -1,38 +1,63 @@
 module FSM.Core.Domain.FileSystem
-    ( Entries
-    , Entry (..)
+    ( Entry (..)
     , FileSystem (..)
+    , FileSystemError (..)
     , Registry
+    , _File
+    , cpath
+    , dpath
+    , fname
+    , joinCont
+    , mcontent
     , newFileSystem
-    , pathEntries
+    , reg
     ) where
 
+import           Control.Lens          (Field2 (_2), non, (%~), (&))
+import           Control.Lens.TH       (makeLenses, makePrisms)
 import qualified Data.Map              as M
-import           Data.Maybe            (fromMaybe)
-import           FSM.Core.Domain.Types (Content, Filename, Path)
-
-type Registry = M.Map [Path] Entries
-type Entries  = [Entry]
+import           Data.Text             (Text)
+import           FSM.Core.Domain.Types (Content, Filename, Path, Registry)
 
 data Entry
-    = File      Filename (Maybe Content)
+    = File      { _fname :: Filename, _mcontent :: Maybe Content }
     -- ^ File abstraction composed of a name and nullable content
-    | Directory Path
+    | Directory { _dpath :: Path}
     -- ^ Directory that just has a path
     deriving (Show)
 
+makeLenses ''Entry
+makePrisms ''Entry
+
 data FileSystem
     = FileSystem
-          { reg  :: Registry -- ^ The file system registry
-          , path :: Path     -- ^ The current path of the registry
+          { _reg   :: Registry Entry -- ^ The file system registry
+          , _cpath :: Path           -- ^ The current path of the registry
           }
     deriving (Show)
 
+makeLenses ''FileSystem
+
+data FileSystemError 
+    = OperationNotPermittedError Text
+    -- ^ The operation is not permitted due to business constraints
+    | EntryNotFoundError         Text
+    -- ^ The required entry was not found in the File System
+    deriving (Show)
+
+instance Eq Entry where
+    entry == entry' = entryId entry == entryId entry'
+
 newFileSystem :: Path -> FileSystem
 newFileSystem basePath = 
-    FileSystem { reg  = M.fromList [([basePath], mempty)]
-               , path = basePath
-               }
+    let registry = M.fromList [([basePath], [File "foo.txt" Nothing])]
+     in FileSystem registry basePath
 
-pathEntries :: [Path] -> Registry -> Entries
-pathEntries paths = fromMaybe [] . M.lookup paths
+entryId :: Entry -> Text
+entryId (File name _)    = name
+entryId (Directory path) = path
+
+joinCont :: Entry -> Content -> Entry
+joinCont entry cont = entry 
+                    & _File . _2 . non mempty
+                    %~ (<> cont)

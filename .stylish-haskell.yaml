@@ -479,6 +479,7 @@ language_extensions:
   - OverloadedRecordDot
   - OverloadedStrings
   - RecordWildCards
+  - TemplateHaskell
   - TypeFamilies    
 
 # Attempt to find the cabal file in ancestors of the current directory, and
