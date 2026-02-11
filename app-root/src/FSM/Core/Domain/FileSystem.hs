@@ -3,15 +3,18 @@ module FSM.Core.Domain.FileSystem
     , FileSystem (..)
     , FileSystemError (..)
     , Registry
+    , _File
     , cpath
     , dpath
     , fname
+    , joinCont
     , mcontent
-    , reg
     , newFileSystem
+    , reg
     ) where
 
-import           Control.Lens.TH       (makeLenses)
+import           Control.Lens          (Field2 (_2), non, (%~), (&))
+import           Control.Lens.TH       (makeLenses, makePrisms)
 import qualified Data.Map              as M
 import           Data.Text             (Text)
 import           FSM.Core.Domain.Types (Content, Filename, Path, Registry)
@@ -24,6 +27,7 @@ data Entry
     deriving (Show)
 
 makeLenses ''Entry
+makePrisms ''Entry
 
 data FileSystem
     = FileSystem
@@ -46,9 +50,14 @@ instance Eq Entry where
 
 newFileSystem :: Path -> FileSystem
 newFileSystem basePath = 
-    let registry = M.fromList [([basePath], mempty)]
+    let registry = M.fromList [([basePath], [File "foo.txt" Nothing])]
      in FileSystem registry basePath
 
 entryId :: Entry -> Text
 entryId (File name _)    = name
 entryId (Directory path) = path
+
+joinCont :: Entry -> Content -> Entry
+joinCont entry cont = entry 
+                    & _File . _2 . non mempty
+                    %~ (<> cont)
