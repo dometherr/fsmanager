@@ -6,6 +6,8 @@ import           FSM.Core.Domain.Types (Argument, Filename)
 data Command where
     Echo :: Text -> Maybe Filename -> Command
     -- ^ Echo a message or append to a file
+    Pwd  :: Command
+    -- ^ Print the current working directory
     Exit :: Command
     -- ^ Terminates the program
     deriving (Eq, Show)
