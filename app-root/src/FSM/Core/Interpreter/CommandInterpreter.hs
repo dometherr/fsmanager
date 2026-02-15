@@ -9,12 +9,13 @@ import           FSM.Core.Domain.FileSystem   (Entry (..), FileSystemError,
                                                cpath, joinCont, reg)
 import           FSM.Core.Domain.Types        (Filename)
 import           FSM.Core.Effect.MonadConsole (MonadConsole (..))
-import           FSM.Core.Effect.MonadFS      (MonadFS (modifyFS))
+import           FSM.Core.Effect.MonadFS      (MonadFS (getFS, modifyFS))
 
 type Interpreter m = (MonadFS m, MonadConsole m, MonadError FileSystemError m)
 
 interpret :: Interpreter m => Command -> m ()
 interpret Exit             = return ()
+interpret Pwd              = pwd
 interpret (Echo msg mfile) = echo msg mfile
 
 echo :: Interpreter m => Text -> Maybe Filename -> m ()
@@ -27,3 +28,6 @@ echo msg (Just fname) = modifyFS $ \fs ->
         . filtered (\case (File n _) -> n == fname
                           _          -> False)
         %~ (`joinCont` msg)
+
+pwd :: Interpreter m => m ()
+pwd = getFS >>= sendLine . (^. cpath)
