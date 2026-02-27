@@ -6,6 +6,7 @@ module FSM.Core.Domain.FileSystem
     , _File
     , cpath
     , dpath
+    , entryId
     , fname
     , joinCont
     , mcontent
@@ -50,7 +51,7 @@ instance Eq Entry where
 
 newFileSystem :: Path -> FileSystem
 newFileSystem basePath = 
-    let registry = M.fromList [([basePath], [File "foo.txt" Nothing])]
+    let registry = M.fromList [(basePath, [])]
      in FileSystem registry basePath
 
 entryId :: Entry -> Text

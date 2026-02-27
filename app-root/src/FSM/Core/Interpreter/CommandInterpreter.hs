@@ -5,8 +5,8 @@ import           Control.Lens                 (At (at), filtered, non,
 import           Control.Monad.Error.Class    (MonadError)
 import           Data.Text                    (Text)
 import           FSM.Core.Domain.Command      (Command (..))
-import           FSM.Core.Domain.FileSystem   (Entry (..), FileSystemError,
-                                               cpath, joinCont, reg)
+import           FSM.Core.Domain.FileSystem   (FileSystemError, cpath, entryId,
+                                               joinCont, reg)
 import           FSM.Core.Domain.Types        (Filename)
 import           FSM.Core.Effect.MonadConsole (MonadConsole (..))
 import           FSM.Core.Effect.MonadFS      (MonadFS (getFS, modifyFS))
@@ -22,11 +22,10 @@ echo :: Interpreter m => Text -> Maybe Filename -> m ()
 echo msg Nothing      = sendLine msg
 echo msg (Just fname) = modifyFS $ \fs ->
     fs & reg
-        . at [fs ^. cpath]
+        . at (fs ^. cpath)
         . non []
         . traversed
-        . filtered (\case (File n _) -> n == fname
-                          _          -> False)
+        . filtered ((== fname) . entryId)
         %~ (`joinCont` msg)
 
 pwd :: Interpreter m => m ()

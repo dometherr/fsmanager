@@ -14,5 +14,5 @@ type Argument   = Text
 type Content    = Text
 type Entries a  = [a]
 type Filename   = Text
-type Registry a = M.Map [Path] (Entries a)
+type Registry a = M.Map Path (Entries a)
 type Path       = Text
