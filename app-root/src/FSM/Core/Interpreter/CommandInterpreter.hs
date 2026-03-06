@@ -3,6 +3,7 @@ module FSM.Core.Interpreter.CommandInterpreter (interpret) where
 import           Control.Lens                 (At (at), filtered, non,
                                                traversed, (%~), (&), (^.))
 import           Control.Monad.Error.Class    (MonadError)
+import qualified Data.Text                   as T
 import           Data.Text                    (Text)
 import           FSM.Core.Domain.Command      (Command (..))
 import           FSM.Core.Domain.FileSystem   (FileSystemError, cpath, entryId,
@@ -15,6 +16,7 @@ type Interpreter m = (MonadFS m, MonadConsole m, MonadError FileSystemError m)
 
 interpret :: Interpreter m => Command -> m ()
 interpret Exit             = return ()
+interpret Help             = help
 interpret Pwd              = pwd
 interpret (Echo msg mfile) = echo msg mfile
 
@@ -30,3 +32,13 @@ echo msg (Just fname) = modifyFS $ \fs ->
 
 pwd :: Interpreter m => m ()
 pwd = getFS >>= sendLine . (^. cpath)
+
+help :: Interpreter m => m ()
+help = sendLine $ T.unlines
+    [ "Available commands:"
+    , "  help               - Show this help message"
+    , "  pwd                - Print current working directory"
+    , "  echo <msg>         - Print message to console"
+    , "  echo <msg> >> <f>  - Append message to file"
+    , "  exit               - Exit the program"
+    ]
