@@ -8,6 +8,8 @@ data Command where
     -- ^ Echo a message or append to a file
     Pwd  :: Command
     -- ^ Print the current working directory
+    Help :: Command
+    -- ^ Show available commands
     Exit :: Command
     -- ^ Terminates the program
     deriving (Eq, Show)
