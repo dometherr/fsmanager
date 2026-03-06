@@ -12,6 +12,7 @@ parseCommand rawCmd =
         []             -> Left  NoCommandError
         ["exit"]       -> Right Exit
         ["pwd"]        -> Right Pwd
+        ["ls"]         -> Right Ls
         ["help"]       -> Right Help
         ("echo":parts) -> parseEcho parts
         (command:_)    -> Left $ CommandNotFoundError
