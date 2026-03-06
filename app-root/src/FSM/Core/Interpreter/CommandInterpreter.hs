@@ -8,7 +8,7 @@ import           Data.Text                    (Text)
 import           FSM.Core.Domain.Command      (Command (..))
 import           FSM.Core.Domain.FileSystem   (Entry (..), FileSystemError, cpath, entryId,
                                                joinCont, reg)
-import           FSM.Core.Domain.Types        (Filename)
+import           FSM.Core.Domain.Types        (Filename, Path)
 import           FSM.Core.Effect.MonadConsole (MonadConsole (..))
 import           FSM.Core.Effect.MonadFS      (MonadFS (getFS, modifyFS))
 
@@ -17,7 +17,7 @@ type Interpreter m = (MonadFS m, MonadConsole m, MonadError FileSystemError m)
 interpret :: Interpreter m => Command -> m ()
 interpret Exit             = return ()
 interpret Help             = help
-interpret Ls               = ls
+interpret (Ls mPath)       = ls mPath
 interpret Pwd              = pwd
 interpret (Echo msg mfile) = echo msg mfile
 
@@ -34,10 +34,16 @@ echo msg (Just fname) = modifyFS $ \fs ->
 pwd :: Interpreter m => m ()
 pwd = getFS >>= sendLine . (^. cpath)
 
-ls :: Interpreter m => m ()
-ls = do
+ls :: Interpreter m => Maybe Path -> m ()
+ls mPath = do
     fs <- getFS
-    let entries = fs ^.. reg . at (fs ^. cpath) . _Just . traversed
+    let currentPath = fs ^. cpath
+        targetPath = case mPath of
+            Nothing      -> currentPath
+            Just path
+                | T.isPrefixOf "/" path -> path                        -- absolute path
+                | otherwise             -> currentPath <> "/" <> path  -- relative path
+        entries = fs ^.. reg . at targetPath . _Just . traversed
     if null entries
         then sendLine "(empty directory)"
         else mapM_ (sendLine . formatEntry) entries
@@ -51,7 +57,8 @@ help = sendLine $ T.unlines
     [ "Available commands:"
     , "  help               - Show this help message"
     , "  pwd                - Print current working directory"
-    , "  ls                 - List directory contents"
+    , "  ls                 - List directory contents (current directory)"
+    , "  ls <path>          - List directory contents at specified path"
     , "  echo <msg>         - Print message to console"
     , "  echo <msg> >> <f>  - Append message to file"
     , "  exit               - Exit the program"
