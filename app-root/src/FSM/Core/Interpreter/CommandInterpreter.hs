@@ -1,14 +1,16 @@
 module FSM.Core.Interpreter.CommandInterpreter (interpret) where
 
-import           Control.Lens                 (At (at), filtered, non,
-                                               traversed, (%~), (&), (^..), (^.), _Just)
+import           Control.Lens                 (At (at), _Just, filtered, non,
+                                               traversed, (%~), (&), (^.),
+                                               (^..))
 import           Control.Monad.Error.Class    (MonadError)
-import qualified Data.Text                   as T
 import           Data.Text                    (Text)
+import qualified Data.Text                    as T
 import           FSM.Core.Domain.Command      (Command (..))
-import           FSM.Core.Domain.FileSystem   (Entry (..), FileSystemError, cpath, entryId,
-                                               joinCont, reg)
-import           FSM.Core.Domain.Types        (Filename, Path)
+import           FSM.Core.Domain.FileSystem   (FileSystemError, cpath, entryId,
+                                               formatEntry, joinCont, reg)
+import           FSM.Core.Domain.Path         (Path, isAbsolute, join)
+import           FSM.Core.Domain.Types        (Filename)
 import           FSM.Core.Effect.MonadConsole (MonadConsole (..))
 import           FSM.Core.Effect.MonadFS      (MonadFS (getFS, modifyFS))
 
@@ -37,20 +39,13 @@ pwd = getFS >>= sendLine . (^. cpath)
 ls :: Interpreter m => Maybe Path -> m ()
 ls mPath = do
     fs <- getFS
-    let currentPath = fs ^. cpath
-        targetPath = case mPath of
-            Nothing      -> currentPath
-            Just path
-                | T.isPrefixOf "/" path -> path                        -- absolute path
-                | otherwise             -> currentPath <> "/" <> path  -- relative path
-        entries = fs ^.. reg . at targetPath . _Just . traversed
+    let currentPath       = fs ^. cpath
+        whenAbsolute path = if isAbsolute path then path else join currentPath path
+        targetPath        = maybe currentPath whenAbsolute mPath
+        entries           = fs ^.. reg . at targetPath . _Just . traversed
     if null entries
         then sendLine "(empty directory)"
         else mapM_ (sendLine . formatEntry) entries
-
-formatEntry :: Entry -> Text
-formatEntry (File name _)     = name <> " (file)"
-formatEntry (Directory path)  = path <> " (dir)"
 
 help :: Interpreter m => m ()
 help = sendLine $ T.unlines

@@ -38,6 +38,7 @@ library
         FSM.Core.App,
         FSM.Core.Domain.Command,
         FSM.Core.Domain.FileSystem,
+        FSM.Core.Domain.Path,
         FSM.Core.Domain.Types,
         FSM.Core.Effect.MonadConsole,
         FSM.Core.Effect.MonadFS,

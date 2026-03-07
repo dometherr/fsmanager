@@ -8,6 +8,7 @@ module FSM.Core.Domain.FileSystem
     , dpath
     , entryId
     , fname
+    , formatEntry
     , joinCont
     , mcontent
     , newFileSystem
@@ -62,3 +63,7 @@ joinCont :: Entry -> Content -> Entry
 joinCont entry cont = entry 
                     & _File . _2 . non mempty
                     %~ (<> cont)
+
+formatEntry :: Entry -> Text
+formatEntry (File name _)    = name <> " (file)"
+formatEntry (Directory path) = path <> " (dir)"
