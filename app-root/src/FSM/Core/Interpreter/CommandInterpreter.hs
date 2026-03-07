@@ -7,7 +7,7 @@ import           Control.Monad.Error.Class    (MonadError)
 import           Data.Text                    (Text)
 import qualified Data.Text                    as T
 import           FSM.Core.Domain.Command      (Command (..))
-import           FSM.Core.Domain.FileSystem   (FileSystemError, cpath, entryId,
+import           FSM.Core.Domain.FileSystem   (Entry (File), FileSystemError, cpath, entryId,
                                                formatEntry, joinCont, reg)
 import           FSM.Core.Domain.Path         (Path, isAbsolute, join)
 import           FSM.Core.Domain.Types        (Filename)
@@ -26,12 +26,19 @@ interpret (Echo msg mfile) = echo msg mfile
 echo :: Interpreter m => Text -> Maybe Filename -> m ()
 echo msg Nothing      = sendLine msg
 echo msg (Just fname) = modifyFS $ \fs ->
-    fs & reg
-        . at (fs ^. cpath)
-        . non []
-        . traversed
-        . filtered ((== fname) . entryId)
-        %~ (`joinCont` msg)
+    let currentPath = fs ^. cpath
+        entries     = fs ^.. reg . at currentPath . _Just . traversed
+    in case filter ((== fname) . entryId) entries of
+        [] -> fs & reg
+                . at currentPath
+                . non []
+                %~ (++ [File fname (Just msg)])
+        _ -> fs & reg
+                . at currentPath
+                . non []
+                . traversed
+                . filtered ((== fname) . entryId)
+                %~ (`joinCont` msg)
 
 pwd :: Interpreter m => m ()
 pwd = getFS >>= sendLine . (^. cpath)
@@ -55,6 +62,6 @@ help = sendLine $ T.unlines
     , "  ls                 - List directory contents (current directory)"
     , "  ls <path>          - List directory contents at specified path"
     , "  echo <msg>         - Print message to console"
-    , "  echo <msg> >> <f>  - Append message to file"
+    , "  echo <msg> >> <f>  - Append message to file (creates file if not exists)"
     , "  exit               - Exit the program"
     ]
